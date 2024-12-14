@@ -20,6 +20,12 @@ void main() {
       expect(config.getBool('key2'), true);
       expect(config.getDouble('key3'), 1.0);
       expect(config.getInt('key4'), 100);
+      expect(config.getAll(), {
+        'key1': 'value1',
+        'key2': 'true',
+        'key3': '1.0',
+        'key4': '100',
+      });
     });
 
     test('throws exception when request fails', () async {
