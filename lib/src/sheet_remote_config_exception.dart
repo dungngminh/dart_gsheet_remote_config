@@ -1,7 +1,7 @@
-/// A [SheetRemoteConfigException] class for handling errors related to the Simple Remote Config.
+/// A [SheetRemoteConfigException] class for handling errors related to the [SheetRemoteConfig].
 ///
 /// This exception can be used to indicate various issues that may arise when
-/// working with the Simple Remote Config, such as network errors, parsing errors,
+/// working with the [SheetRemoteConfig], such as network errors, parsing errors,
 /// or configuration issues.
 ///
 /// Example usage:
@@ -28,8 +28,4 @@ class SheetRemoteConfigException implements Exception {
   String toString() {
     return 'SheetRemoteConfigException: $message';
   }
-}
-
-class UnauthorizedException extends SheetRemoteConfigException {
-  UnauthorizedException({super.message = 'Unauthorized'});
 }

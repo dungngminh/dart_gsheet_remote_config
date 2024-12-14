@@ -10,14 +10,18 @@ class SheetRemoteConfig {
   final http.Client _client;
 
   /// In-memory cache for the config values.
-  final _inMemoryCachedConfig = <String, dynamic>{};
+  final _inMemoryCachedConfig = <String, String>{};
 
   /// Fetches the config from the given URL and stores it in the in-memory cache.
   ///
   /// *Parameters:*
   ///
-  /// [configUrl] - The URL to fetch the config from.
+  /// [id] - The ID of the Google Sheet.
+  /// You can find the ID of the Google Sheet in the URL of the sheet.
+  /// For example, if the URL is `https://docs.google.com/spreadsheets/d/1a2b3c4d5e6f7g8h9i0j`, the ID is `1a2b3c4d5e6f7g8h9i0j`.
   ///
+  /// [sheetName] - The name of the sheet to fetch the config from.
+  /// If the sheet name is not provided, the first sheet in the Google Sheet will be used.
   ///
   /// *Exceptions:*
   ///
@@ -36,26 +40,55 @@ class SheetRemoteConfig {
     try {
       final requestUri = _buildSheetUri(id: id, sheetName: sheetName);
       final response = await _client.get(requestUri);
-      if (response.statusCode == 200) {
-        final payload = response.body;
-      } else {
+      if (response.statusCode != 200) {
         throw Exception('Failed to load remote config');
       }
-    } catch (e) {
+      final payload = response.body;
+      if (!payload.startsWith('"')) {
+        throw SheetRemoteConfigException(
+            message: 'Invalid remote config', stackTrace: StackTrace.current);
+      }
+      // "key","value"
+      final keyValues = payload.split('\n').map((e) {
+        final entries = e.split(',');
+        final key = entries[0].replaceAll('"', '');
+        final value = entries[1].replaceAll('"', '');
+        return MapEntry(key, value);
+      }).toList();
+      _inMemoryCachedConfig.addAll(Map.fromEntries(keyValues));
+    } catch (e, st) {
       throw SheetRemoteConfigException(
           message: switch (e) {
-        FormatException() => 'Invalid remote config',
-        _ => 'Error when handling: $e',
-      });
+            FormatException() => 'Invalid remote config',
+            _ => 'Error when handling: $e',
+          },
+          stackTrace: st);
     }
   }
 
+  /// Builds a URI for accessing a Google Sheet in **CSV format**.
+  ///
+  /// This function constructs a URI that points to a specific Google Sheet
+  /// and optionally to a specific sheet within the spreadsheet. The URI
+  /// is formatted to request the sheet data in **CSV format**.
+  ///
+  /// The function filters out any null values from the query parameters.
+  ///
+  /// *Parameters:*
+  ///
+  /// - [id] is the unique identifier of the Google Sheet.
+  ///
+  /// - [sheetName] is the optional name of the specific sheet within the spreadsheet.
+  ///
+  /// *Returns:*
+  ///
+  /// Returns a [Uri] object that can be used to access the Google Sheet data.
   Uri _buildSheetUri({required String id, String? sheetName}) {
     return Uri.https(
         'docs.google.com',
-        '/spreadsheets/d/$id/gviz/tq?',
+        '/spreadsheets/d/$id/gviz/tq',
         {
-          'tqx': 'out:json',
+          'tqx': 'out:csv',
           'sheet': sheetName,
         }.filterValues((value) => value != null));
   }
@@ -77,7 +110,7 @@ class SheetRemoteConfig {
   ///
   /// ```dart
   /// final config = SheetRemoteConfig();
-  /// await config.initilize(configUrl: 'http://example.com/config'); // {"key1": "value1", "key2": true, "key3": 1.0, "key4": 100, "key5": { "key6": "value5" }}
+  /// await config.initialize(id: 'eqweqdqdadqweqdfwsdf'); // "key1","value1"\n"key2","true"\n"key3","1.0"\n"key4","100"
   ///
   /// final value = config.getString('key1');
   /// print(value); // value1
@@ -91,22 +124,19 @@ class SheetRemoteConfig {
   /// final value4 = config.getInt('key4');
   /// print(value4); // 100
   ///
-  /// final value5 = config.getMap('key5');
-  /// print(value5); // { "key6": "value5" }
-  ///
-  /// final value6 = config.getString('key7');
+  /// final value6 = config.getString('key5');
   /// print(value6); // null
   ///
-  /// final value6Default = config.getString('key7', defaultValue: 'default value');
+  /// final value6Default = config.getString('key5', defaultValue: 'default value');
   /// print(value6Default); // default value
   /// ```
   /// {@endtemplate}
-  T? _get<T>(String key, {T? defaultValue}) {
+  String? _get(String key) {
     try {
-      final value = _inMemoryCachedConfig[key] as T?;
-      return value ?? defaultValue;
+      final value = _inMemoryCachedConfig[key];
+      return value;
     } catch (e) {
-      return defaultValue;
+      return null;
     }
   }
 
@@ -116,7 +146,12 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   String? getString(String key, {String? defaultValue}) {
-    return _get<String>(key, defaultValue: defaultValue);
+    try {
+      final valueAtKey = _get(key);
+      return valueAtKey ?? defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
   }
 
   /// Return the value of the given key from the in-memory cache as a [bool].
@@ -125,7 +160,17 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   bool? getBool(String key, {bool? defaultValue}) {
-    return _get<bool>(key, defaultValue: defaultValue);
+    try {
+      final value = _get(key);
+      if (value == null && value!.isEmpty) return defaultValue;
+      final boolValue = bool.tryParse(
+        value,
+        caseSensitive: false,
+      );
+      return boolValue ?? defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
   }
 
   /// Return the value of the given key from the in-memory cache as an [int].
@@ -134,7 +179,14 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   int? getInt(String key, {int? defaultValue}) {
-    return _get<int>(key, defaultValue: defaultValue);
+    try {
+      final valueAtKey = _inMemoryCachedConfig[key];
+      if (valueAtKey == null && valueAtKey!.isEmpty) return defaultValue;
+      final intValue = int.tryParse(valueAtKey);
+      return intValue ?? defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
   }
 
   /// Return the value of the given key from the in-memory cache as a [double].
@@ -143,26 +195,21 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   double? getDouble(String key, {double? defaultValue}) {
-    return _get<double>(key, defaultValue: defaultValue);
-  }
-
-  /// Return the value of the given key from the in-memory cache as a [Map].
-  ///
-  /// If the key is not found, return the default value.
-  ///
-  /// {@macro get_value}
-  Map<String, dynamic>? getMap(
-    String key, {
-    Map<String, dynamic>? defaultValue,
-  }) {
-    return _get<Map<String, dynamic>>(key, defaultValue: defaultValue);
+    try {
+      final valueAtKey = _inMemoryCachedConfig[key];
+      if (valueAtKey == null && valueAtKey!.isEmpty) return defaultValue;
+      final doubleValue = double.tryParse(valueAtKey);
+      return doubleValue ?? defaultValue;
+    } catch (e) {
+      return defaultValue;
+    }
   }
 
   /// Return all the values from the in-memory cache.
   ///
   /// Returns:
   /// A [Map] containing all the values from the in-memory cache.
-  Map<String, dynamic> getAll() {
+  Map<String, String> getAll() {
     return _inMemoryCachedConfig;
   }
 }

@@ -1,7 +1,7 @@
 name: dart_gsheet_remote_config
-description: A sample command-line application.
+description: Remote config for Dart/Flutter and use Google Sheets to do that
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/dungngminh/dart_gsheet_remote_config
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -14,3 +14,4 @@ dependencies:
 dev_dependencies:
   lints: ^4.0.0
   test: ^1.24.0
+  mockito: ^5.4.4
