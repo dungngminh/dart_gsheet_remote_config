@@ -1,3 +1,7 @@
+## 1.1.0
+
+- enhance: Early return if response payload is empty
+
 ## 1.0.2
 
 - Update LICENSE

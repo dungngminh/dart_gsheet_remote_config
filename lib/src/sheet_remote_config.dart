@@ -44,6 +44,7 @@ class SheetRemoteConfig {
         throw Exception('Failed to load remote config');
       }
       final payload = response.body;
+      if (payload.isEmpty) return;
       if (!payload.startsWith('"')) {
         throw SheetRemoteConfigException(
             message: 'Invalid remote config', stackTrace: StackTrace.current);

@@ -9,8 +9,7 @@ void main() {
     test('initializes and fetches config successfully', () async {
       final mockClient = MockClient((request) async {
         return http.Response(
-            '"key1","value1"\n"key2","true"\n"key3","1.0"\n"key4","100"',
-            200);
+            '"key1","value1"\n"key2","true"\n"key3","1.0"\n"key4","100"', 200);
       });
 
       final config = SheetRemoteConfig(client: mockClient);
@@ -26,6 +25,22 @@ void main() {
         'key3': '1.0',
         'key4': '100',
       });
+    });
+
+    test('initializes and fetches config successfully but response is empty',
+        () async {
+      final mockClient = MockClient((request) async {
+        return http.Response('', 200);
+      });
+
+      final config = SheetRemoteConfig(client: mockClient);
+      await config.initilize(id: 'test_id', sheetName: 'test_sheet');
+
+      expect(config.getString('key1'), null);
+      expect(config.getBool('key2'), null);
+      expect(config.getDouble('key3'), null);
+      expect(config.getInt('key4'), null);
+      expect(config.getAll(), {});
     });
 
     test('throws exception when request fails', () async {
