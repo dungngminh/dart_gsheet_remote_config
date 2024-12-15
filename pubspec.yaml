@@ -1,6 +1,7 @@
 name: dart_gsheet_remote_config
-description: Remote config for Dart/Flutter and use Google Sheets to do that
-version: 1.1.0
+description: A package that allows you to use Google Sheets as a remote config for changing your Dart/Flutter app's behaviors, settings,.. without updating.
+version: 1.2.1+1
+topics: [remote, config]
 repository: https://github.com/dungngminh/dart_gsheet_remote_config
 issue_tracker: https://github.com/dungngminh/dart_gsheet_remote_config/issues
 
