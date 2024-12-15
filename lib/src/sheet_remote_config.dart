@@ -94,7 +94,10 @@ class SheetRemoteConfig {
         }.filterValues((value) => value != null));
   }
 
-  /// Returns the value of the given key from the in-memory cache.
+  /// Return the value of the given key from the in-memory cache as a [String].
+  ///
+  /// If the key is not found, return the default value.
+  ///
   /// {@template get_value}
   ///
   /// *Parameters:*
@@ -125,30 +128,16 @@ class SheetRemoteConfig {
   /// final value4 = config.getInt('key4');
   /// print(value4); // 100
   ///
-  /// final value6 = config.getString('key5');
-  /// print(value6); // null
+  /// final value5 = config.getString('key5');
+  /// print(value5); // null
   ///
-  /// final value6Default = config.getString('key5', defaultValue: 'default value');
-  /// print(value6Default); // default value
+  /// final value5Default = config.getString('key5', defaultValue: 'default value');
+  /// print(value5Default); // default value
   /// ```
   /// {@endtemplate}
-  String? _get(String key) {
-    try {
-      final value = _inMemoryCachedConfig[key];
-      return value;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Return the value of the given key from the in-memory cache as a [String].
-  ///
-  /// If the key is not found, return the default value.
-  ///
-  /// {@macro get_value}
   String? getString(String key, {String? defaultValue}) {
     try {
-      final valueAtKey = _get(key);
+      final valueAtKey = _inMemoryCachedConfig[key];
       return valueAtKey ?? defaultValue;
     } catch (e) {
       return defaultValue;
@@ -162,7 +151,7 @@ class SheetRemoteConfig {
   /// {@macro get_value}
   bool? getBool(String key, {bool? defaultValue}) {
     try {
-      final value = _get(key);
+      final value = _inMemoryCachedConfig[key];
       if (value == null && value!.isEmpty) return defaultValue;
       final boolValue = bool.tryParse(
         value,
@@ -209,6 +198,7 @@ class SheetRemoteConfig {
   /// Return all the values from the in-memory cache.
   ///
   /// Returns:
+  ///
   /// A [Map] containing all the values from the in-memory cache.
   Map<String, String> getAll() {
     return _inMemoryCachedConfig;
