@@ -45,10 +45,7 @@ class SheetRemoteConfig {
       }
       final payload = response.body;
       if (payload.isEmpty) return;
-      if (!payload.startsWith('"')) {
-        throw SheetRemoteConfigException(
-            message: 'Invalid remote config', stackTrace: StackTrace.current);
-      }
+      if (!payload.startsWith('"')) throw FormatException();
       // "key","value"
       final keyValues = payload.split('\n').map((e) {
         final entries = e.split(',');
