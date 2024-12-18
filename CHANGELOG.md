@@ -1,3 +1,11 @@
+## 1.2.1+2
+
+- chore: fix dart score
+
+## 1.2.1+1
+
+- docs: update docs
+
 ## 1.2.1
 
 - docs: Fix broken images in README.md

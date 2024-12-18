@@ -16,7 +16,7 @@ This is a package that allows you to use Google Sheets as a remote config for ch
 
 ### Google Sheet
 
-- Create a Google Sheet document, make it **PUBLIC** (If not you will get 401, in the future I will find the way to inject auth token for private sheeet) and put an easy to remember document name.
+- Create a Google Sheet document, make it **PUBLIC & READ ONLY** (If not you will get 401, in the future I will find the way to inject auth token for private sheeet) and put an easy to remember document name.
 
 ![image](https://github.com/dungngminh/dart_gsheet_remote_config/raw/main/art/image.png)
 
