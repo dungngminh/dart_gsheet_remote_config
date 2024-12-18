@@ -1,3 +1,7 @@
+## 1.2.1+3
+
+- chore: add more docs for API
+
 ## 1.2.1+2
 
 - chore: fix dart score

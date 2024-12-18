@@ -7,6 +7,8 @@ import 'sheet_remote_config_exception.dart';
 class SheetRemoteConfig {
   SheetRemoteConfig({http.Client? client}) : _client = client ?? http.Client();
 
+  /// This http client is used to make requests to the Google Sheet.
+  /// You can provide your own client to customize the request behavior.
   final http.Client _client;
 
   /// In-memory cache for the config values.
