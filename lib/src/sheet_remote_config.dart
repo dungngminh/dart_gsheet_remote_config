@@ -135,12 +135,8 @@ class SheetRemoteConfig {
   /// ```
   /// {@endtemplate}
   String? getString(String key, {String? defaultValue}) {
-    try {
-      final valueAtKey = _inMemoryCachedConfig[key];
-      return valueAtKey ?? defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
+    final valueAtKey = _inMemoryCachedConfig[key];
+    return valueAtKey ?? defaultValue;
   }
 
   /// Return the value of the given key from the in-memory cache as a [bool].
@@ -149,17 +145,13 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   bool? getBool(String key, {bool? defaultValue}) {
-    try {
-      final value = _inMemoryCachedConfig[key];
-      if (value == null && value!.isEmpty) return defaultValue;
-      final boolValue = bool.tryParse(
-        value,
-        caseSensitive: false,
-      );
-      return boolValue ?? defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
+    final valueAtKey = _inMemoryCachedConfig[key];
+    if (valueAtKey == null || valueAtKey.isEmpty) return defaultValue;
+    final boolValue = bool.tryParse(
+      valueAtKey,
+      caseSensitive: false,
+    );
+    return boolValue ?? defaultValue;
   }
 
   /// Return the value of the given key from the in-memory cache as an [int].
@@ -168,14 +160,10 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   int? getInt(String key, {int? defaultValue}) {
-    try {
-      final valueAtKey = _inMemoryCachedConfig[key];
-      if (valueAtKey == null && valueAtKey!.isEmpty) return defaultValue;
-      final intValue = int.tryParse(valueAtKey);
-      return intValue ?? defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
+    final valueAtKey = _inMemoryCachedConfig[key];
+    if (valueAtKey == null || valueAtKey.isEmpty) return defaultValue;
+    final intValue = int.tryParse(valueAtKey);
+    return intValue ?? defaultValue;
   }
 
   /// Return the value of the given key from the in-memory cache as a [double].
@@ -184,14 +172,10 @@ class SheetRemoteConfig {
   ///
   /// {@macro get_value}
   double? getDouble(String key, {double? defaultValue}) {
-    try {
-      final valueAtKey = _inMemoryCachedConfig[key];
-      if (valueAtKey == null && valueAtKey!.isEmpty) return defaultValue;
-      final doubleValue = double.tryParse(valueAtKey);
-      return doubleValue ?? defaultValue;
-    } catch (e) {
-      return defaultValue;
-    }
+    final valueAtKey = _inMemoryCachedConfig[key];
+    if (valueAtKey == null || valueAtKey.isEmpty) return defaultValue;
+    final doubleValue = double.tryParse(valueAtKey);
+    return doubleValue ?? defaultValue;
   }
 
   /// Return all the values from the in-memory cache.

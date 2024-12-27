@@ -1,3 +1,7 @@
+## 1.2.2
+
+- fix: remove unnecessary try catch
+
 ## 1.2.1+3
 
 - chore: add more docs for API
