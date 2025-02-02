@@ -23,7 +23,7 @@ jobs:
         uses: dart-lang/setup-dart@v1
 
       - name: Get dependencies
-        run: dart pub get
+        run: dart pub get -
 
       - name: Analyze
         run: dart analyze
