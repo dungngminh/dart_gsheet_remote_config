@@ -16,6 +16,7 @@ analyzer:
   errors:
     pattern_never_matches_value_type: ignore
 
+  exclude: ["**/example/**", "**/example_flutter/**"]
 # Uncomment the following section to specify additional rules.
 
 # linter:
